@@ -1,0 +1,26 @@
+name: Spring Music
+
+on:
+  push:
+    tags:
+      - spring-music-*
+
+jobs:
+  build-jar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull sample-app repo 
+        uses: actions/checkout@v3
+        with:
+          repository: cloudfoundry-samples/spring-music
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 11
+      - name: Execute Gradle build
+        run: ./gradlew clean assemble
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/libs/spring-music-1.0.jar

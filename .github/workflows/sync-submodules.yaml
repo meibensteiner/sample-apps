@@ -1,0 +1,24 @@
+name: Sync submodules
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  sync-spring-music:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull repository
+        uses: actions/checkout@v3
+      - name: Update Git submodules 
+        run: |
+          git pull --recurse-submodules
+          git submodule update --remote --recursive
+      - name: Commit update
+        run: |
+          git config --global user.name 'Github Actions Bot'
+          git config --global user.email 'noreply@meibensteiner.at'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          commitid=spring-music-$(git rev-parse HEAD:spring-music)
+          git commit -am "Updated submodule reference" && git tag -a $commitid -m "Updated submodule reference" && git push --atomic origin main $commitid || echo "No changes to commit."
